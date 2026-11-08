@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`ZOTERO_MCP_PRELOAD_EMBEDDINGS=1` loads the embedding model in the background when the server starts (opt-in).** The first `zotero_semantic_search` of a process imports torch and sentence-transformers, loads the model and runs its first encode. With the variable set and semantic search configured, a thread does that right after the server has answered `initialize`, so neither the client nor the startup waits for it, and embeds one short string. Only models that run in the process are loaded (HuggingFace, `default`): API providers get no request, and with `idle_unload_minutes` set nothing is loaded, since the model lives in the worker. With a local Qwen3 model on Windows: `initialize` unchanged (2.10 s against 2.14 s), the first search 0.24 s instead of 7.4 s.
+
 ### Changed
 
 - **Importing the semantic search module no longer loads tiktoken's `cl100k_base` encoding.** That took about 0.1 s (or a download, when the file was not cached yet) for a helper only the tests call, and on Windows the module is imported on the main thread before the server answers its first request (#485). The encoding is now loaded on first use.
