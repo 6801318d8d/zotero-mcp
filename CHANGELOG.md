@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Importing the semantic search module no longer loads tiktoken's `cl100k_base` encoding.** That took about 0.1 s (or a download, when the file was not cached yet) for a helper only the tests call, and on Windows the module is imported on the main thread before the server answers its first request (#485). The encoding is now loaded on first use.
+
 ### Fixed
 
 - **`zotero_search_items` could list the same results in a different order after a server restart.** The query variants it searches (as typed, ASCII-folded, dashes as spaces, umlauts expanded) were collected in a set, whose iteration order for strings depends on the per-process hash seed, and the API search path lists each variant's hits in variant order. The variants now come in a fixed order, the query as typed first.
